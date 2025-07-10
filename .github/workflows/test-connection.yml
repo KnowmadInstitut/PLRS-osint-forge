@@ -31,3 +31,11 @@ jobs:
       run: |
         python utils/test_connection.py
 
+- name: Check environment variable presence
+  run: |
+    if [ -z "$GAC_PLRS" ]; then
+      echo "❌ GAC_PLRS is empty or not set!"
+      exit 1
+    else
+      echo "✅ GAC_PLRS is set."
+    fi
