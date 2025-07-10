@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'utils/test_connection.py'
+      - 'connectors/connect_sheet.py'
       - '.github/workflows/test-connection.yml'
 
 jobs:
@@ -25,20 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Check environment variable presence
-      run: |
-        if [ -z "${{ secrets.GAC_PLRS }}" ]; then
-          echo "❌ GAC_PLRS is empty or not set!"
-          exit 1
-        else
-          echo "✅ GAC_PLRS is set."
-        fi
-
-    - name: Create service account file from secret
-      run: |
-        mkdir -p credentials
-        echo "${{ secrets.GAC_PLRS }}" > credentials/service_account.json
-
     - name: Run test_connection.py
-      run: |
-        python utils/test_connection.py
+      env:
+        GAC_PLRS: ${{ secrets.GAC_PLRS }}
+      run: python utils/test_connection.py
