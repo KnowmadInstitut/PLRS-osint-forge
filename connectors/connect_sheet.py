@@ -1,27 +1,28 @@
-import os
-import json
 import gspread
 from google.oauth2.service_account import Credentials
+import os
+import json
 
-# Recupera las credenciales desde una variable de entorno (inyectada por GitHub Secrets)
-credentials_json = os.getenv("GAC_PLRS")
+# Crea archivo temporal a partir de variable de entorno (GAC_PLRS)
+SERVICE_ACCOUNT_JSON = os.getenv("GAC_PLRS")
 
-if not credentials_json:
-    raise EnvironmentError("La variable de entorno 'GAC_PLRS' no está definida.")
+if not SERVICE_ACCOUNT_JSON:
+    raise EnvironmentError("❌ No se encontró la variable de entorno GAC_PLRS")
 
-# Convierte el string JSON a un diccionario
-info = json.loads(credentials_json)
+# Ruta temporal segura
+CREDENTIALS_PATH = "credentials/service_account.json"
 
-# Alcances necesarios para Google Sheets
+# Crear el archivo si no existe
+os.makedirs("credentials", exist_ok=True)
+with open(CREDENTIALS_PATH, "w") as f:
+    f.write(SERVICE_ACCOUNT_JSON)
+
+# ID del Google Sheet
+SHEET_ID = '1fiITctTirAwsZxmvpzy4Mkfhv64sANKApgK5GTU6gAQ'
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-# Crea las credenciales desde el diccionario
-creds = Credentials.from_service_account_info(info, scopes=SCOPES)
-
-# ID del Google Sheet compartido
-SHEET_ID = '1fiITctTirAwsZxmvpzy4Mkfhv64sANKApgK5GTU6gAQ'
-
 def connect_to_sheet():
+    creds = Credentials.from_service_account_file(CREDENTIALS_PATH, scopes=SCOPES)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SHEET_ID)
     return sheet
