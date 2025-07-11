@@ -1,0 +1,26 @@
+name: Test Google Service Account
+
+on:
+  workflow_dispatch:  # puedes correrlo manualmente
+
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Decodificar archivo JSON del secreto
+      run: |
+        echo "${{ secrets.GAC_PLRS }}" | base64 -d > key.json
+
+    - name: Instalar gcloud
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GAC_PLRS }}
+        project_id: polarisosintforge
+        export_default_credentials: true
+
+    - name: Verificar autenticación
+      run: gcloud auth list
